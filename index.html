@@ -1,0 +1,908 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Weather Vibes 🌤️</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            color: #ffffff;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: background 0.5s ease;
+            padding: 25px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .search-box input {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            width: 280px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button {
+            padding: 15px 22px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            background: #ffffff;
+            color: #333;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .weather-card {
+            background: rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(12px);
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            margin-bottom: 25px;
+        }
+
+        .weather-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .weather-icon {
+            font-size: 75px;
+            margin: 15px 0;
+        }
+
+        .temperature {
+            font-size: 4rem;
+            font-weight: bold;
+        }
+
+        .condition {
+            font-size: 1.2rem;
+            margin-top: 8px;
+            text-transform: capitalize;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .detail {
+            background: rgba(255,255,255,0.13);
+            padding: 18px;
+            border-radius: 15px;
+        }
+
+        .detail span {
+            display: block;
+            font-size: 25px;
+            margin-bottom: 8px;
+        }
+
+        .detail p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .suggestion-card {
+            background: rgba(255,255,255,0.95);
+            color: #222;
+            border-radius: 25px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .suggestion-card h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .suggestion {
+            background: #f3f4ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .suggestion h3 {
+            margin-bottom: 8px;
+            color: #4f46e5;
+        }
+
+        .suggestion p {
+            line-height: 1.6;
+        }
+
+        .motivation {
+            background: linear-gradient(135deg, #ff9966, #ff5e62);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .motivation h3 {
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        .motivation p {
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+        }
+
+        .error {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,0,0,0.2);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .weather-card,
+            .suggestion-card {
+                padding: 20px;
+            }
+
+            .temperature {
+                font-size: 3rem;
+            }
+
+            .details {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+
+            .search-box button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>🌤️ Weather Vibes</h1>
+            <p>Weather updates with a little comedy and motivation 😂💪</p>
+        </header>
+
+        <!-- Search -->
+        <div class="search-box">
+            <input
+                type="text"
+                id="cityInput"
+                placeholder="Enter city name..."
+                value="Kurnool"
+            >
+
+            <button onclick="searchWeather()">
+                🔍 Search Weather
+            </button>
+
+            <button onclick="getLocation()">
+                📍 My Location
+            </button>
+        </div>
+
+        <div class="error" id="errorMessage"></div>
+
+        <div class="loading" id="loading">
+            🌍 Checking the sky...
+        </div>
+
+        <!-- Current Weather -->
+        <section class="weather-card">
+
+            <h2 id="cityName">Kurnool</h2>
+
+            <p id="date"></p>
+
+            <div class="weather-icon" id="weatherIcon">
+                🌤️
+            </div>
+
+            <div class="temperature" id="temperature">
+                --°C
+            </div>
+
+            <div class="condition" id="condition">
+                Loading weather...
+            </div>
+
+            <div class="details">
+
+                <div class="detail">
+                    <span>🌡️</span>
+                    <strong id="feelsLike">--°C</strong>
+                    <p>Feels Like</p>
+                </div>
+
+                <div class="detail">
+                    <span>💧</span>
+                    <strong id="humidity">--%</strong>
+                    <p>Humidity</p>
+                </div>
+
+                <div class="detail">
+                    <span>💨</span>
+                    <strong id="wind">-- km/h</strong>
+                    <p>Wind Speed</p>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Suggestions -->
+        <section class="suggestion-card">
+
+            <h2>🎯 Today's Weather Suggestions</h2>
+
+            <div class="suggestion">
+
+                <h3>😂 Funny Weather Advice</h3>
+
+                <p id="funnySuggestion">
+                    Waiting for the weather...
+                </p>
+
+            </div>
+
+            <div class="suggestion">
+
+                <h3>👕 What Should You Wear?</h3>
+
+                <p id="dressSuggestion">
+                    Let's check the temperature first!
+                </p>
+
+            </div>
+
+            <div class="suggestion">
+
+                <h3>🚀 Today's Activity</h3>
+
+                <p id="activitySuggestion">
+                    Your mission is loading...
+                </p>
+
+            </div>
+
+            <div class="motivation">
+
+                <h3>💪 Your Daily Motivation</h3>
+
+                <p id="motivationMessage">
+                    You can do it! Even the clouds are moving forward. ☁️
+                </p>
+
+            </div>
+
+        </section>
+
+        <footer>
+            Made with ❤️ and JavaScript | Weather Vibes 🌈
+        </footer>
+
+    </div>
+
+    <script>
+
+        /*
+        ======================================
+        WEATHER VIBES APP
+        ======================================
+        API: Open-Meteo
+        No API key required
+        ======================================
+        */
+
+        const cityInput = document.getElementById("cityInput");
+
+        const loading = document.getElementById("loading");
+
+        const errorMessage = document.getElementById("errorMessage");
+
+        let currentWeather = null;
+
+        // Weather code descriptions
+        function getWeatherInfo(code) {
+
+            if (code === 0) {
+                return {
+                    icon: "☀️",
+                    condition: "Clear Sky"
+                };
+            }
+
+            if (code === 1 || code === 2) {
+                return {
+                    icon: "🌤️",
+                    condition: "Partly Cloudy"
+                };
+            }
+
+            if (code === 3) {
+                return {
+                    icon: "☁️",
+                    condition: "Cloudy"
+                };
+            }
+
+            if (code === 45 || code === 48) {
+                return {
+                    icon: "🌫️",
+                    condition: "Foggy"
+                };
+            }
+
+            if (code >= 51 && code <= 57) {
+                return {
+                    icon: "🌦️",
+                    condition: "Drizzle"
+                };
+            }
+
+            if (code >= 61 && code <= 67) {
+                return {
+                    icon: "🌧️",
+                    condition: "Rainy"
+                };
+            }
+
+            if (code >= 71 && code <= 77) {
+                return {
+                    icon: "❄️",
+                    condition: "Snowy"
+                };
+            }
+
+            if (code >= 80 && code <= 82) {
+                return {
+                    icon: "🌧️",
+                    condition: "Rain Showers"
+                };
+            }
+
+            if (code >= 95) {
+                return {
+                    icon: "⛈️",
+                    condition: "Thunderstorm"
+                };
+            }
+
+            return {
+                icon: "🌍",
+                condition: "Unknown Weather"
+            };
+
+        }
+
+        // Search city coordinates
+        async function searchWeather() {
+
+            const city = cityInput.value.trim();
+
+            if (city === "") {
+                showError("Please enter a city name! 😅");
+                return;
+            }
+
+            loading.style.display = "block";
+
+            errorMessage.style.display = "none";
+
+            try {
+
+                const response = await fetch(
+                    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+                );
+
+                if (!response.ok) {
+                    throw new Error("Network error");
+                }
+
+                const data = await response.json();
+
+                if (!data.results || data.results.length === 0) {
+                    throw new Error("City not found");
+                }
+
+                const location = data.results[0];
+
+                await fetchWeather(
+                    location.latitude,
+                    location.longitude,
+                    location.name,
+                    location.country
+                );
+
+            } catch (error) {
+
+                showError("Oops! City not found. Even Google Maps is confused 😂");
+
+            }
+
+        }
+
+        // Fetch weather
+        async function fetchWeather(latitude, longitude, city, country) {
+
+            try {
+
+                const response = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&timezone=auto`
+                );
+
+                if (!response.ok) {
+                    throw new Error("Weather API error");
+                }
+
+                const data = await response.json();
+
+                currentWeather = data.current;
+
+                displayWeather(
+                    currentWeather,
+                    city,
+                    country
+                );
+
+            } catch (error) {
+
+                showError("Weather server is taking a tea break ☕ Try again!");
+
+            }
+
+        }
+
+        // Display weather
+        function displayWeather(weather, city, country) {
+
+            loading.style.display = "none";
+
+            const info = getWeatherInfo(weather.weather_code);
+
+            const temperature = weather.temperature_2m;
+
+            const feelsLike = weather.apparent_temperature;
+
+            const humidity = weather.relative_humidity_2m;
+
+            const wind = weather.wind_speed_10m;
+
+            document.getElementById("cityName").textContent =
+                `${city}, ${country || ""}`;
+
+            document.getElementById("date").textContent =
+                new Date().toLocaleString();
+
+            document.getElementById("weatherIcon").textContent =
+                info.icon;
+
+            document.getElementById("temperature").textContent =
+                `${Math.round(temperature)}°C`;
+
+            document.getElementById("condition").textContent =
+                info.condition;
+
+            document.getElementById("feelsLike").textContent =
+                `${Math.round(feelsLike)}°C`;
+
+            document.getElementById("humidity").textContent =
+                `${humidity}%`;
+
+            document.getElementById("wind").textContent =
+                `${wind} km/h`;
+
+            generateSuggestions(
+                temperature,
+                weather.weather_code,
+                humidity,
+                wind
+            );
+
+            changeBackground(
+                weather.weather_code,
+                temperature
+            );
+
+        }
+
+        // Funny and motivational suggestions
+        function generateSuggestions(
+            temperature,
+            weatherCode,
+            humidity,
+            wind
+        ) {
+
+            let funny = "";
+
+            let dress = "";
+
+            let activity = "";
+
+            let motivation = "";
+
+            // Rain
+            if (
+                weatherCode >= 51 &&
+                weatherCode <= 67 ||
+                weatherCode >= 80 &&
+                weatherCode <= 82
+            ) {
+
+                funny =
+                    "☔ Rain is falling like your pending assignments. Carry an umbrella before you become a walking swimming pool! 😂";
+
+                dress =
+                    "Wear a raincoat or carry an umbrella. Waterproof shoes will save your socks from becoming fish tanks.";
+
+                activity =
+                    "Perfect time to study, code, read, or enjoy tea while watching the rain. ☕";
+
+                motivation =
+                    "🌧️ Rain doesn't stop your progress. Keep moving, one small step at a time. Your goals are bigger than today's clouds! 💪";
+
+            }
+
+            // Hot weather
+            else if (temperature >= 35) {
+
+                funny =
+                    "🔥 The sun is working overtime! Even your phone battery wants to escape this heat. Drink water and find some shade! 😂";
+
+                dress =
+                    "Wear light cotton clothes, sunglasses, and comfortable footwear. Keep yourself hydrated.";
+
+                activity =
+                    "Study or code indoors, drink water, and avoid heavy outdoor activities during peak heat.";
+
+                motivation =
+                    "☀️ You may feel the heat, but your dreams are hotter! Take care of yourself and keep learning. Small progress is still progress. 🚀";
+
+            }
+
+            // Cold weather
+            else if (temperature <= 15) {
+
+                funny =
+                    "🥶 It's so cold that even your laptop wants a blanket. Time for warm clothes and hot tea! 😂";
+
+                dress =
+                    "Wear warm clothes, a sweater or jacket. Keep yourself comfortable.";
+
+                activity =
+                    "Perfect time for reading, coding, studying, or enjoying a warm drink.";
+
+                motivation =
+                    "❄️ Cold days don't freeze your dreams. Keep your motivation warm and continue your journey! 💙";
+
+            }
+
+            // Thunderstorm
+            else if (weatherCode >= 95) {
+
+                funny =
+                    "⛈️ The sky is having a dramatic movie scene! Stay indoors and let the thunder do the background music. 😂";
+
+                dress =
+                    "Stay indoors if possible. If you must go outside, avoid exposed areas and check local weather warnings.";
+
+                activity =
+                    "Enjoy indoor activities like studying, coding, movies, or reading. Stay safe!";
+
+                motivation =
+                    "⚡ Storms pass, but strong minds keep growing. Stay safe today and come back stronger tomorrow! 💪";
+
+            }
+
+            // Fog
+            else if (weatherCode === 45 || weatherCode === 48) {
+
+                funny =
+                    "🌫️ The weather has activated mystery mode. Even the clouds don't know where they are going! 😂";
+
+                dress =
+                    "Wear comfortable clothes and take care while travelling in low visibility.";
+
+                activity =
+                    "Enjoy indoor learning, reading, or coding. Travel carefully if necessary.";
+
+                motivation =
+                    "🌫️ You don't need to see the whole path. Just take the next step. Your future is waiting! 🚀";
+
+            }
+
+            // Cloudy
+            else if (weatherCode === 3) {
+
+                funny =
+                    "☁️ The sun is on a short vacation. Don't worry, your motivation doesn't need sunlight! 😂";
+
+                dress =
+                    "Wear comfortable clothes. Carry a light jacket if it feels cool.";
+
+                activity =
+                    "A great day to study, complete assignments, code, or go for a peaceful walk.";
+
+                motivation =
+                    "☁️ Cloudy skies don't mean a cloudy future. Keep working toward your dreams! 💪";
+
+            }
+
+            // Pleasant weather
+            else {
+
+                funny =
+                    "🌤️ The weather is behaving better than your exam timetable. Enjoy this beautiful day! 😂";
+
+                dress =
+                    "Wear comfortable clothes suitable for the temperature. Sunglasses are optional but stylish! 😎";
+
+                activity =
+                    "Great time for a walk, outdoor activity, studying, or building your next project.";
+
+                motivation =
+                    "🌈 Today is a fresh opportunity to learn something new and get one step closer to your goals. You've got this! 🚀";
+
+            }
+
+            // Humidity addition
+            if (humidity >= 80) {
+
+                funny +=
+                    " 💦 Humidity is high, so your hair may have its own career plans today!";
+
+            }
+
+            // Wind addition
+            if (wind >= 30) {
+
+                funny +=
+                    " 🌬️ Strong winds detected! Hold your umbrella like it's a valuable project file!";
+
+            }
+
+            document.getElementById("funnySuggestion").textContent =
+                funny;
+
+            document.getElementById("dressSuggestion").textContent =
+                dress;
+
+            document.getElementById("activitySuggestion").textContent =
+                activity;
+
+            document.getElementById("motivationMessage").textContent =
+                motivation;
+
+        }
+
+        // Change background
+        function changeBackground(weatherCode, temperature) {
+
+            if (weatherCode >= 51 && weatherCode <= 82) {
+
+                document.body.style.background =
+                    "linear-gradient(135deg, #4facfe, #00f2fe)";
+
+            }
+
+            else if (temperature >= 35) {
+
+                document.body.style.background =
+                    "linear-gradient(135deg, #ff9966, #ff5e62)";
+
+            }
+
+            else if (weatherCode >= 95) {
+
+                document.body.style.background =
+                    "linear-gradient(135deg, #232526, #414345)";
+
+            }
+
+            else if (weatherCode === 3) {
+
+                document.body.style.background =
+                    "linear-gradient(135deg, #757f9a, #d7dde8)";
+
+            }
+
+            else {
+
+                document.body.style.background =
+                    "linear-gradient(135deg, #667eea, #764ba2)";
+
+            }
+
+        }
+
+        // Get user location
+        function getLocation() {
+
+            if (!navigator.geolocation) {
+
+                showError("Your browser does not support location.");
+
+                return;
+
+            }
+
+            loading.style.display = "block";
+
+            errorMessage.style.display = "none";
+
+            navigator.geolocation.getCurrentPosition(
+
+                async function(position) {
+
+                    const latitude = position.coords.latitude;
+
+                    const longitude = position.coords.longitude;
+
+                    try {
+
+                        const response = await fetch(
+                            `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}&language=en&format=json`
+                        );
+
+                        const data = await response.json();
+
+                        const location = data;
+
+                        const city =
+                            location.city ||
+                            location.town ||
+                            location.village ||
+                            location.name ||
+                            "Your Location";
+
+                        const country =
+                            location.country || "";
+
+                        await fetchWeather(
+                            latitude,
+                            longitude,
+                            city,
+                            country
+                        );
+
+                    } catch (error) {
+
+                        await fetchWeather(
+                            latitude,
+                            longitude,
+                            "Your Location",
+                            ""
+                        );
+
+                    }
+
+                },
+
+                function() {
+
+                    loading.style.display = "none";
+
+                    showError(
+                        "Location permission denied. Search your city instead 📍"
+                    );
+
+                }
+
+            );
+
+        }
+
+        // Show error
+        function showError(message) {
+
+            loading.style.display = "none";
+
+            errorMessage.textContent = message;
+
+            errorMessage.style.display = "block";
+
+        }
+
+        // Press Enter to search
+        cityInput.addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter") {
+
+                searchWeather();
+
+            }
+
+        });
+
+        // Load default city
+        searchWeather();
+
+    </script>
+
+</body>
+</html>
